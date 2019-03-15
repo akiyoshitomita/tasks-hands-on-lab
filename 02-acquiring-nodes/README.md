@@ -1,41 +1,40 @@
-# Setting up test nodes to use with Bolt
+# 演習用ノードの生成
 
-> **Difficulty**: Basic
+> **難易度**: 基本
 
-> **Time**: Approximately 5 minutes
+> **演習時間**: 約5分
 
-In this exercise you will create nodes that you can use to experiment with Bolt. You can also use existing nodes in your system if you prefer. 
+この演習では、Puppet Boltで操作対象のノードを作成します。すでに対象ノードをお持ちの場合は、そのノードを利用することも可能です。
+以下の3つのうち1つの方法でノードを準備してください。
 
-- [Existing nodes](#existing-nodes)
-- [Using Vagrant](#using-vagrant)
-- [Using Docker](#using-docker)
+- [既存ノード利用](#existing-nodes)
+- [Vagrantでノード生成](#using-vagrant)
+- [Dockerでノード生成](#using-docker)
 
-# Prerequisites
-To use an attached configuration file to set up test nodes, you must have one of the following installed on your machine: 
+# 手順
+添付の構成ファイルを利用する場合、以下のいずれかを製品を事前にインストールする必要があります。 
 
 - [Vagrant](https://www.vagrantup.com/) 
 - [Docker for Mac](https://www.docker.com/docker-mac) 
 - [Docker for Windows](https://www.docker.com/docker-windows) 
 
-# Existing nodes
+# 既存ノード利用
 
-If you already have, or can easily launch, a few Linux or Windows nodes then you're all set. These nodes must be accessible via SSH or WinRM; if you can  access them via an SSH or WinRM client then Bolt can, too.
+既存のノードを利用する場合は、Puppet BoltをインストールしたPCからSSHまたはWinWRmで接続できるように設定を行ってください。
+* 詳細な変更手順がわからない場合は、VagrantまたはDockerを利用して演習ノードを生成して下さい
 
-# Using Vagrant
-**Note:** These instructions assume that you are familiar with Vagrant and have a suitable hypervisor configured.
+# Vagrantでノード生成
+**注意事項** Vagrantに精通しており、適切な仮想環境の設定が終わっていることを前提に記載しています。
 
-The attached Vagrantfile configures three CentOS 7 nodes and a Windows (Nano Server) node.
+添付のVagrantfileは、CentOS 7 ノード3台と、Windows(nano Server)ノード1台を生成します。
 
 
-
-1. Save the following code as `Vagrantfile` or download the `Vagrantfile` attached to this exercise. To configure a different number of nodes, change the `NODES` environment variable.
+1. `Vagrantfile`を下記の内容で作成するか[`Vagrantfile`](./Vagrantfile)からダウンロードしてください。もし、CentOSの台数を変更したい場合は、環境変数NODESを変更してください。
 
 
     ```ruby
     nodes_count = 3
-    ```
-    The result:
-    ```        
+    
     if ENV['NODES'].to_i > 0 && ENV['NODES']
       $nodes_count = ENV['NODES'].to_i
     end
@@ -56,24 +55,24 @@ The attached Vagrantfile configures three CentOS 7 nodes and a Windows (Nano Ser
       end
     end
     ```
-2. From the command line, ensure you’re in the directory where you stored the Vagrantfile file and enter `vagrant up`.
+2. コマンドラインのカレントディレクトリにVagrantfileがあることを確認して、 `vagrant up`.コマンドを入力します。
 
-3. Generate the SSH configuration so Bolt knows how to authenticate with the SSH daemon. The following command will output the required details.
+3. 次のコマンドで、Puppet Boltがノードに接続するための認証情報を表示します。
 
     ```
     vagrant ssh-config
     ```
     
-    You can save that so it will be automatically picked up by most SSH clients, including Bolt. This uses the ability to specify hosts along with their connection details in a [configuration file](https://linux.die.net/man/5/ssh_config).
+    出力結果を保存することで、Boltを含むSSHクライアントから自動的に必要な認証情報を得ることができます。詳しい情報が必要な場合は、Linuxの[ssh_config](https://euske.github.io/openssh-jman/ssh_config.html)を確認してください。
     
     ```
     mkdir ~/.ssh
     vagrant ssh-config | sed /StrictHostKeyChecking/d | sed /UserKnownHostsFile/d >> ~/.ssh/config
     ```
     
-    By saving this SSH configuration file, you can use the node name, rather than the IP address. When passing nodes to Bolt in the following exercises with Linux you will use `--nodes node1,node2`.
+    この設定を保存することで、ノードへのアクセスをIPアドレスではなくノード名で行うことができるようになります。Boltのコマンドから`--nodes node1,node2`と指定することで、ノードへアクセスすることができるようになります。
 
-4. Make sure you can SSH into all of your nodes. If you've used the vagrant nodes before you may have to remove entries from `~/.ssh/known_hosts`.
+4. 全てのノードへsshで接続できることを確認してください。以前にVagrantを利用してSSH接続をしている場合 `~/.ssh/known_hosts`ファイルから古いSSH接続情報の削除を行ってください
 
     ```
     ssh node1
@@ -82,10 +81,10 @@ The attached Vagrantfile configures three CentOS 7 nodes and a Windows (Nano Ser
     ```
 
 
-# Using Docker
-Using Docker we can quickly launch a number of ephemeral SSH servers. To make that even easier we'll use Docker Compose. 
+# Dockerでノード生成
+Docker-composeを利用して複数のSSHサーバを生成することができます。 
 
-1. Save the following code as `docker-compose.yml` or download the `docker-compose.yml` file attached to this exercise.
+1. `docker-compose.yml`を以下の内容で生成するか[docker-compose.yml](./docker-compose.yml)からダウンロードしてください。
 
     ```yaml
     version: '3'
@@ -95,15 +94,16 @@ Using Docker we can quickly launch a number of ephemeral SSH servers. To make th
         ports:
           - 22
     ```
-2. Save the following code as `Dockerfile` or download the `Dockerfile` attached to this exercise.
+2. 同じディレクトリに`Dockerfile`を以下の内容で生成するか[Dockerfile](./Dockerfile)からダウンロードしてください。
     ```
     FROM rastasheep/ubuntu-sshd:16.04
     RUN ln -s /usr/bin/python3 /usr/bin/python
     ```
 
-2. Launch a single SSH server in the background: `docker-compose up -d`. To launch more SSH servers, run:  `docker-compose up --scale ssh=3 -d`.
+2. １台のSSHサーバを起動する場合 `docker-compose up -d`コマンドを実行します。複数のSSHサーバを起動する場合は `docker-compose up --scale ssh=3 -d`コマンドを入力します。 (ssh=3の数字は、起動するサーバの数です)
 
-3. View a list of running containers: `docker-compose ps`. The result should be similar to:  
+3. 起動しているサーバの数を確認するには`docker-compose ps`コマンドを入力します。
+コマンド結果の例：
     ```
             Name                 Command        State           Ports
     -------------------------------------------------------------------------
@@ -111,20 +111,21 @@ Using Docker we can quickly launch a number of ephemeral SSH servers. To make th
     2acquiringnodes_ssh_2   /usr/sbin/sshd -D   Up      0.0.0.0:32769->22/tcp
     ```
     
-    Note the `Ports` column. We are forwarding a local port to the SSH server running in the container. Using the example above, you can SSH to `127.0.0.1:32768`.
+    備考) Portsの列にコンテナへSSH接続するためのポートフォワーディングルールが表示されます。上記例のssh_1へPuppet Boltで接続する場合は、
+    `127.0.0.1:32768`と指定します。
     
-4. If you have a local SSH client, test the connection. Change the port to one you get from running the `docker-compose ps` command. The image sets the username and password to `root`. 
+4. ローカルサーバにSSHクライアントがインストールされている場合は、SSHで接続できることを確認します。ユーザ名とパスワードは`root`です。接続TCPポート番号は`docker-compose ps`で確認したポート番号を指定してください。
     
     ```
     ssh root@127.0.0.1 -p 32768
     ```
 
-5. Make sure you can log into all the nodes before moving on. You may have to remove some entries from `~/.ssh/known_hosts` 
+5. 全てのノードへSSH接続ができることを確認してください。もし接続ができない場合は`~/.ssh/known_hosts`から重複エントリを削除してください。 
 
-    When passing nodes to Bolt in the next section you will use `--nodes 127.0.0.1:32768,127.0.0.1:32769`, replacing the ports with those you see when you run the `docker-compose ps` command.
+    Puppet Boletからノードに接続する場合は `--nodes 127.0.0.1:32768,127.0.0.1:32769`オプションを利用します。ポート番号は `docker-compose ps` コマンドで確認してください。
 
-# Next steps
+# 次の手順
 
-Now that you have set up test nodes to use with Bolt you can move on to:
+テスト用のノードの設定が終わりましたら次のステップへ進んでください。
 
-[Running Commands](../03-running-commands)
+[コマンド実行](../03-running-commands)
