@@ -1,19 +1,31 @@
-# Installing Bolt
+# Puppet Boltのインストール
 
-> **Difficulty**: Basic
+> **難しさ**: 基本
 
-> **Time**: Approximately 10 minutes
+> **演習時間**: 約10分
 
-In this exercise you will install Bolt so you can get started with Puppet Tasks.
+Puppetタスクを実行できるようにPuppet Boltのインストールを行います。
 
-# Installation Details
+# インストール方法
 
-Bolt is packaged for the major operating systems. Please refer to the [installation documentation](https://puppet.com/docs/bolt/latest/bolt_installing.html) to install Bolt for the OS you are using. 
+OSに合わせたパッケージをダウンろーして、インストーラーに従いインストールを行います。
 
-**Note** For this lab and for most use cases it is recommended that bolt is NOT installed as a Ruby Gem. This is because optional (but highly useful) supporting modules are only included in packages and must be installed manually when using the Gem.    
+* [Windowsインストーラ](https://downloads.puppet.com/windows/puppet6/puppet-bolt-x64-latest.msi) をダウンロードして、ダウンロードしたファイルを実行
 
-# Next steps
+* MAC OS インストーラ
+  [10.11(EL Capitan)](https://downloads.puppet.com/mac/puppet6/10.11/x86_64/puppet-bolt-latest.dmg) 
+  [10.11 (El Capitan)](https://downloads.puppet.com/mac/puppet6/10.11/x86_64/puppet-bolt-latest.dmg)
+  [10.12 (Sierra)](https://downloads.puppet.com/mac/puppet6/10.12/x86_64/puppet-bolt-latest.dmg)
+  [10.13 (High Sierra)](https://downloads.puppet.com/mac/puppet6/10.13/x86_64/puppet-bolt-latest.dmg)
+  [10.14 (Mojave)](https://downloads.puppet.com/mac/puppet6/10.14/x86_64/puppet-bolt-latest.dmg)
+  のをダウンロードして、ダウンロードしたファイルを実行
+    
+Linux版またはパッケージマネージャを利用してのインストール方法は[installation documentation](https://puppet.com/docs/bolt/latest/bolt_installing.html)を参照してください(英語) 
 
-Now that you have Bolt installed you can move on to:
+**注意事項** RubyのGemを利用してPuppet Boltするとサポートモジュールが含まれないため、お勧めいたしません。Gemからインストールした場合は、サポートモジュールを別途手動でインストールする必要があります。
 
-[Setting up test nodes](../02-acquiring-nodes)
+# 次の手順
+
+Puppet Boltのインストールが終わったら次へ進んでください。
+
+[演習用ノードの生成](../02-acquiring-nodes)
