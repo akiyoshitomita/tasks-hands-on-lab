@@ -1,40 +1,40 @@
-# Running Commands
+# コマンド実行
 
-> **Difficulty**: Basic
+> **難易度**: 基本
 
-> **Time**: Approximately 5 minutes
+> **所要時間**: 約5分
 
-You can use Bolt to run arbitrary commands on a set of remote hosts. Let's see that in practice before we move on to more advanced features. Choose the exercise based on the operating system of your test nodes.
+Puppet Boltはリモートホスト上で任意のコマンド実行を行うことができます。複雑なデプロイ方法を学ぶ前にこの動作を確認してください。テストノードのOS上で実行するコマンドを選びます。
 
-- [Running shell commands on Linux nodes](#running-shell-commands-on-linux-nodes)
-- [Running PowerShell commands on Windows nodes](#running-powershell-commands-on-windows-nodes)
+- [Linux上でシェルコマンドを実行](#running-shell-commands-on-linux-nodes)
+- [WindowsでPowershellコマンドを実行](#running-powershell-commands-on-windows-nodes)
 
-# Prerequisites
-Complete the following before you start this lesson:
+# 前提条件
+本章を学ぶ前に以下の作業を行ってください:
 
-1. [Installing Bolt](../01-installing-bolt)
-1. [Setting up test nodes](../02-acquiring-nodes)
+1. [Puppet Boltのインストール](../01-installing-bolt)
+1. [テストノードの生成](../02-acquiring-nodes)
 
-# Running shell commands on Linux nodes
+# Linux上でシェルコマンドを実行
 
-Bolt by default uses SSH for transport. If you can connect to systems remotely, you can use Bolt to run shell commands. It reuses your existing SSH configuration for authentication, which is typically provided in `~/.ssh/config`.
+Puppet BoltはデフォルトではSSHを利用して接続を行います。リモートホストへ接続できる場合、Boltを利用してシェルコマンドを実行することができます。`~/.ssh/config`に認証設定がしてあれば、設定内容に従って接続が行われます。
 
-To run a command against a remote Linux node, use the following command syntax:
+リモートノードでコマンドを実行する場合、以下のコマンド書式を利用します。
 ```
-bolt command run <command> --nodes <nodes>
-```
-
-To run a command against a remote node using a username and password rather than keys use the following syntax:
-```
-bolt command run <command> --nodes <nodes> --user <user> --password <password>
+bolt command run <コマンド> --nodes <ホスト名又はIPアドレス>
 ```
 
-1. Run the `uptime` command to view how long the system has been running. If you are using existing nodes on your system, replace `node1` with the address for your node.
+SSH接続にユーザ名/パスワードを利用する場合は、以下のコマンド書式を利用します。
+```
+bolt command run <コマンド> --nodes <ホスト名又はIPアドレス> --user <ユーザ名> --password <パスワード>
+```
+
+1. システムの起動時間を表示する`uptime`コマンドを実行します。必要に応じて`node1`の部分は、接続先のIPアドレスやホスト名に修正してください。
 
     ```
     bolt command run uptime --nodes node1
     ```
-    The result:
+    実行結果:
     ```
     Started on node1...
     Finished on node1:
@@ -45,14 +45,14 @@ bolt command run <command> --nodes <nodes> --user <user> --password <password>
 
     ```
 
-    **Tip:** If you receive the error `Host key verification failed` make sure the correct host keys are in your `known_hosts` file or pass `--no-host-key-check` to future Bolt commands. Bolt will not honor `StrictHostKeyChecking` in your SSH configuration.
+	**備考:** `Host key verification failed`と表示された場合は、`~/.ssh/known_hosts`ファイルを修正するか、boltコマンドに `--no-host-key-check`オプションを加えてください。
 
-2. Run the 'uptime' command on multiple nodes by passing a comma-separated list. If you are using existing nodes on your system, replace `node1,node2,node3` with addresses for your nodes. If you get an error about `Host key verification` run the rest of the examples with the `--no-host-key-check` flag to disable host key verification.
+2. `uptime`コマンドをコンマ区切りの複数のノードに対して実行します。必要に応じて、`node1,node2,node3`の部分を接続のIPアドレスやホスト名に修正してください。`Host key verification failed`と表示された場合は、`--no-host-key-check`オプションを加えてください。
 
     ```
     bolt command run uptime --nodes node1,node2,node3
     ```
-    The result:
+	実行結果:
     ```
     Started on node1...
     Started on node3...
@@ -70,6 +70,7 @@ bolt command run <command> --nodes <nodes> --user <user> --password <password>
     Ran on 3 nodes in 0.52 seconds
     ```
 
+3. ノードの情報を格納してグループ化して一斉に
 3. Create an inventory file to store information about your nodes and refer to them as a group.  Later exercises will refer to the default group `all`. For more information on how to set up other named groups, see the
     [Inventory File docs](https://puppet.com/docs/bolt/latest/inventory_file.html).
 
@@ -83,47 +84,47 @@ bolt command run <command> --nodes <nodes> --user <user> --password <password>
         host-key-check: false
     ```
 
-# Running PowerShell commands on Windows nodes
+# WindowsでPowershellコマンドを実行
 
-Bolt can communicate over WinRM and execute PowerShell commands when running Windows nodes. To run a command against a remote Windows node, use the following command syntax:
+Boltは、WinRMを利用して、稼働中のWindowsノードに対してPowerShellコマンドを実行できます。リモートコマンド実行を行う場合、以下のコマンドを利用します。
 
 ```
 bolt command run <command> --nodes winrm://<node> --user <user> --password <password>
 ```
 
-Note the `winrm://` prefix for the node address. Also note the `--username` and `--password` flags for passing authentication information. In addition, unless you have set up SSL for WinRM communication, you must supply the `--no-ssl` flag. Otherwise running a Bolt command will result in an `unknown protocol` error.
+補足 プレフィックス`winrm://`がノード名の前に付ける必要があります。また、認証用のユーザ名とパスワードを設定する必要があります。WinRMがSSL通信を許可しない場合は、`--no-ssl`オプションを付けてください。そうしないと、`unknown protocol`エラーが表示されます。
 
 ```
 bolt command run <command> --no-ssl --nodes winrm://<node>,winrm://<node> --user <user> --password <password>
 ```
 
-1. Set a variable with the list of nodes.  Later exercises will refer to this variable. You can incorporate the username and password into the node address. For example, if you are using the provided Vagrant configuration file, set the following:
+1. 環境変数にノードリストを設定を行います。本章より後の演習でも、このリストを利用するため中断した場合は環境変数を再設定してください。ユーザ名とパスワードはアドレスに書くことができます。Vagrantで作成した仮想マシンへ接続するときの例を下に記します。
 
     ```
     WINNODE=winrm://vagrant:vagrant@localhost:55985
     ```
 
-    On Windows, you can do the same thing with Powershell:
+    WindowsのPowerShell上で設定する場合は、以下のように入力してください。
 
     ```powershell
     $WINNODE="winrm://vagrant:vagrant@localhost:55985"
     ```
 
-2.  Run the following command to list all of the processes running on a remote machine.
+2.  リモートノード上でどう察しているプロセスリストを表示するコマンドを実行します。
 
     ```
     bolt command run "gps | select ProcessName" --nodes $WINNODE --no-ssl
     ```
 
-    Use following syntax to list all of the processes running on multiple remote machines.
+    複数のノードに対して一斉にコマンド実行する場合、下のようにカンマ区切りでノードを設定してください。
 
     ```
     bolt command run <command> --nodes winrm://<node>,winrm://<node> --user <user> --password <password>
     ```
 
 
-# Next steps
+# 次の手順
 
-Now that you know how to use Bolt to run adhoc commands you can move on to:
+リモートノードへのコマンド実行方法の学習が終わりましたら次のステップへ進んでください。
 
-[Running Scripts](../04-running-scripts)
+[スクリプト実行](../04-running-scripts)
