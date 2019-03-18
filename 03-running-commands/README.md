@@ -70,11 +70,10 @@ bolt command run <コマンド> --nodes <ホスト名又はIPアドレス> --use
     Ran on 3 nodes in 0.52 seconds
     ```
 
-3. ノードの情報を格納してグループ化して一斉に
-3. Create an inventory file to store information about your nodes and refer to them as a group.  Later exercises will refer to the default group `all`. For more information on how to set up other named groups, see the
+3. 事前にノードをグループ化して一斉にコマンド実行を行うためのインベントリファイルを作成します。本手順では、インベントリファイル上のすべてのノードに対して実行する`all`グループを利用しますが、任意のグループ分けなどの方法はマニュアルをご参照願います。（英語）
     [Inventory File docs](https://puppet.com/docs/bolt/latest/inventory_file.html).
 
-    For example, if you are using the provided Vagrant configuration file, save the following to `~/.puppetlabs/bolt/inventory.yaml`:
+    Vaigrant環境での設定例を記します。 `~/.puppetlabs/bolt/inventory.yaml`ファイルに以下の内容を記して保存してください。
 
     ```yaml
     ---
